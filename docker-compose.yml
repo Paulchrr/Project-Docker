@@ -1,0 +1,46 @@
+services:
+  mongo:
+    container_name: mongodb
+    networks:
+      - backend
+    image: mongo:5.0
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+
+  api:
+    container_name: api
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - mongo
+    build: ./backend
+    volumes:
+      - backend:/usr/src/app/
+    ports:
+      - '8080:8080'
+
+  react:
+    container_name: react
+    depends_on:
+      - api
+    networks:
+      - frontend
+    build: ./frontend
+    volumes:
+      - frontend:/usr/src/app
+    ports:
+      - '3000:3000'
+    restart: always
+
+networks:
+  frontend: {}
+  backend: {}
+
+volumes:
+  mongodb_data:
+  frontend:
+  backend:
